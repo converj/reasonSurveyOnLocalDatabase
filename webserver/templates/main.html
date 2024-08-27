@@ -1,0 +1,432 @@
+{% include 'head.html' %}
+<!-- // Single webpage app, for all surveys -->
+
+
+    <select id=languageLinkSelect>
+        <option value=en> English </option>
+        <option value=es> Español </option>
+        <option value=fr> Français </option>
+        <option value=nl> Nederlands </option>
+        <option value=pt> Português </option>
+        <option value=cn> 中文 </option>
+    </select>
+
+
+    <!-- Single webpage app sub-pages -->
+    <div id=pages>
+
+        <div id=pageHome class=Page style='max-width:600px; margin:0 auto; padding:20px;'>
+            <h1 class=title role=status translate=yes> Reason-Based Surveys </h1>
+            <p translate=yes>
+                Create a free survey, where participants express both their opinions and their reasons.
+                Participants can also learn from each other's reasons.
+            </p>
+
+            <h2> <span translate=yes>Start here</span> </h2>
+
+            <table class=newSurveyTable>
+                <tr>
+                    <td class=newSurveyNumber> 1 </td>
+                    <td>
+                        <a class=newSurveyLink href='/#page=multi'>
+                            <span translate=yes> Deliberative Form </span>
+                            <span class=newSurveyLinkDetail translate=yes> Ask a series of survey questions. </span></a>
+                    </td><td class=newSurveyExample>
+                        <a href='{{SITE_URL}}/example' target=_blank translate=yes> Example </a>
+                    </td>
+                </tr>
+            </table>
+
+            <h2 style='margin-top:50px;'> {{SITE_NAME}} Benefits </h2>
+            <div class=productValue>
+                <p>
+                    Sometimes leaders need to discover the best way to help their constituents.
+                    Sometimes the leader needs to discover what they did not even think to ask about.
+                    Sometimes a leader needs to prevent upsetting surprises.
+                    With {{SITE_NAME}}, you don't just collect participants' answers, 
+                    you reveal why people gave those answers, not in terms of demographics, but in their own words.
+                </p>
+                <h4> Features </h4>
+                <ul>
+                    <li> Rating, ranking, checklists, budgets, write-in answers, and proposals
+                    <li> Request-for-proposals forum
+                    <li> Hosts can suggest answers, and participants can also add any new answer
+                    <li> Participants are nudged to converge toward a few main answers, to make results clear
+                </ul>
+                <h4> Why {{SITE_NAME}}? </h4> 
+                <ul>
+                    <li> Deliberation built in:  No need to choose between surveys versus forums
+                    <li> Free
+                    <li> Easy enrollment:  No sign-up process for hosts nor participants
+                    <li> Simple:  As easy as creating a web survey, with realtime results
+                    <li> No moderation required:  Only the best quality, most relevant, user content is presented
+                    <li> Privacy:  No identity tracking
+                </ul>
+                <!-- Demo video / page, testimonials, latest updates... -->
+            </div>
+
+        </div>
+
+
+
+        <div id=pageMultiQuestion class=Page>
+            <h1 class=title translate=yes> Survey </h1>
+            <p> (Javascript error) </p>
+        </div>
+
+
+
+        <div id=pageNewRequest class=Page>
+            <h1 class=title role=status translate=yes> New Request For Proposals </h1>
+            <p translate=yes>
+                Send your group a request for proposals, where participants can propose solutions,
+                and evaluate the pro's and con's of each other's solutions.
+                {{SITE_NAME}} will summarize the best supported solutions.
+            </p>
+            <form id=formNewRequest >
+                <div>
+                    <label for=newRequestInputTitle class=newRequestInputLabel translate=yes> Title </label>
+                    <input id=newRequestInputTitle type=text  placeholder='What is the best way to...'
+                        title='Enter your request title here'  aria-required=true />
+                </div>
+                <div>
+                    <label for=newRequestInputDetail class=newRequestInputLabel translate=yes> Details </label>
+                    <textarea id=newRequestInputDetail  placeholder='More details of our problem...'
+                        title='Enter the content of your request here'  aria-required=true ></textarea>
+                </div>
+
+                <fieldset class=experimentalInputs id=experimentalInputsForRequest>
+                    <legend> Experimental </legend>
+                    <div>
+                        <label for=experimentalPasswordForRequest> Password </label>
+                        <input type=password class=experimentalPasswordInput id=experimentalPasswordForRequest />
+                    </div>
+                    <div>
+                        <label for=doneLinkInput> Done-link </label>
+                        <input type=text class=doneLinkInput id=doneLinkInput />
+                    </div>
+                    <div>
+                        <label for=hideReasonsForRequest> Hide reasons </label>
+                        <input type=checkbox class=hideReasonsCheckbox id=hideReasonsForRequest />
+                    </div>
+                    <div class=loginRequiredDiv>
+                        <label class=loginRequiredLabel for=loginRequiredForRequest> Require Login </label>
+                        <input type=checkbox class=loginRequiredCheckbox name=loginRequired id=loginRequiredForRequest />
+                    </div>
+                </fieldset>
+
+                <div class=newRequestInputArea> 
+                    <div id=newRequestSubmit><button id=buttonSubmit translate=yes> Request Proposals </button></div>
+                    <div id=newRequestSubmitMessage class=Message aria-live=polite ></div>
+                </div>
+            </form>
+
+            <details class=aboutDetails style='margin-top:40px;'>
+                <summary translate=yes> More information </summary>
+
+                <div>
+                    <p>
+                        When you lead a group, and face a problem, then a request-for-proposals helps you
+                        bring out the creative problem-solving ideas of your group-members.
+                        And participants even help you extract the useful ideas from the noise.
+                    </p>
+                    Reason-based voting
+                    <ul>
+                        <li> Users must view others' reasons before entering their own reason
+                        <li> Users must vote for a reason, rather than just voting yes or no
+                        <li> User-generated content cannot be changed once responded to
+                        <li> Users are anonymous, so reasons must stand on their own merit
+                    </ul>
+                    Minimizing the burden of knowledge
+                    <ul>
+                        <li> Proposals & reasons are ordered by votes discounted by length
+                        <li> Users only have to view the best few short proposals / reasons
+                        <li> Pro & con reasons are given equal placement, either interleaved or side-by-side
+                        <li> New proposal/reason input shows similar existing proposals/reasons
+                    </ul>
+                    Anti-abuse
+                    <ul>
+                        <li> Each user can vote for only 1 reason per proposal, to reduce the impact of coordinated voting strategies
+                        <li> Access is private, and sharable by link
+                        <li> Low-quality content is submerged by user voting
+                    </ul>
+
+                    <a href='{{SITE_URL}}/#page=request&link=vEZuXj4uSvki2yQLLg8xE0fLeveOtbhx8bHkI0REmuFq9M6XsI' target=_blank> Example </a>
+                </div>
+            </details>
+
+        </div>
+
+        <div id=pageRequest class=Page>
+            <h1 class=title role=status translate=yes> Request For Proposals </h1>
+            <div id=requestForProposalsContent></div>
+        </div>
+
+
+
+        <div id=pageNewProposal class=Page>
+            <h1 class=title role=status translate=yes> New Proposal </h1>
+            <p translate=yes>
+                Using {{SITE_NAME}}, a leader can get feedback on their proposal, 
+                and participants can point out the pro's and con's of the proposal.
+            </p>
+            <p translate=yes>
+                {{SITE_NAME}} handles the most significant problem with group decision-making & participatory democracy:
+                the large effort to organize and evaluate participants' ideas.  {{SITE_NAME}} does this
+                by turning the crowd on itself, to organize and evaluate each-others' ideas.
+            </p>
+            <form id=formNewProposal >
+                <div>
+                    <label for=newProposalInputTitle class=newProposalInputLabel translate=yes> Title </label>
+                    <input id=newProposalInputTitle type=text  placeholder='I propose...'
+                        title='Enter your proposal title here'  aria-required=true />
+                </div>
+                <div>
+                    <label for=newProposalInputDetail class=newProposalInputLabel translate=yes> Details </label>
+                    <textarea id=newProposalInputDetail  placeholder='More details of my proposal...'
+                        title='Enter the content of your proposal here'  aria-required=true ></textarea>
+                </div>
+
+                <fieldset class=experimentalInputs id=experimentalInputsForProposal>
+                    <legend> Experimental </legend>
+                    <div>
+                        <label for=experimentalPasswordForProposal> Password </label>
+                        <input type=password class=experimentalPasswordInput id=experimentalPasswordForProposal />
+                    </div>
+                    <div>
+                        <label for=hideReasonsForProposal> Hide reasons </label>
+                        <input type=checkbox class=hideReasonsCheckbox id=hideReasonsForProposal />
+                    </div>
+                    <div class=loginRequiredDiv>
+                        <label class=loginRequiredLabel for=loginRequiredForProposal> Require Login </label>
+                        <input type=checkbox class=loginRequiredCheckbox name=loginRequired id=loginRequiredForProposal />
+                    </div>
+                </fieldset>
+
+                <div id=newProposalSubmit><button id=buttonSubmitNewProposal translate=yes> Propose </button></div>
+                <div id=newProposalSubmitMessage class=Message aria-live=polite translate=yes></div>
+            </form>
+        </div>
+
+        <div id=pageProposal class=Page>
+            <h1 class=title role=status translate=yes> Proposal </h1>
+            <div id=ProposalContent></div>
+        </div>
+
+
+
+        <div id=pageNewAutocomplete class=Page>
+            <h1 class=title translate=yes> New Auto-complete Survey </h1>
+            <p translate=yes>
+                Let particpants write-in their own answers, but still condense results to a few best answers.
+            </p>
+            <form id=newQuestionForm >
+                <div>
+                    <label for=newSurveyTitleInput class=newAutocompleteInputLabel translate=yes> Title </label>
+                    <input id=newSurveyTitleInput type=text  placeholder='Survey about...'
+                        title='Enter your survey title here'  aria-required=true />
+                </div>
+                <div>
+                    <label for=newSurveyIntroInput class=newAutocompleteInputLabel translate=yes> Introduction </label>
+                    <textarea id=newSurveyIntroInput aria-required=true
+                        placeholder='More information about this survey...'
+                        title='Enter survey introduction here.'></textarea>
+                </div>
+
+                <fieldset class=experimentalInputs id=experimentalInputsForAutocomplete>
+                    <legend> Experimental </legend>
+                    <div>
+                        <label for=experimentalPasswordForAutocomplete> Password </label>
+                        <input type=password class=experimentalPasswordInput id=experimentalPasswordForAutocomplete />
+                    </div>
+                    <div>
+                        <label for=hideReasonsForAutocomplete> Hide reasons </label>
+                        <input type=checkbox class=hideReasonsCheckbox id=hideReasonsForAutocomplete />
+                    </div>
+                    <div class=loginRequiredDiv>
+                        <label class=loginRequiredLabel for=loginRequiredForAutocompleteCheckbox> Require Login </label>
+                        <input type=checkbox class=loginRequiredCheckbox name=loginRequired id=loginRequiredForAutocompleteCheckbox />
+                    </div>
+                </fieldset>
+
+                <div id=newSurveySubmitButtons>
+                    <button id=newSurveySubmitButton translate=yes> Edit survey </button>
+                </div>
+                <div id=newSurveySubmitMessage class=Message aria-live=polite></div>
+            </form>
+
+            <details class=aboutDetails style='margin-top:40px;'>
+                <summary translate=yes> More information </summary>
+                <div>
+                    Surveyors:
+                    <ul>
+                        The most straightforward way to find out what your group-members think, is to simply ask, and let them say anything.
+                        Worry less about whether you are providing the right multiple choice options, by letting particpants create their own options.
+                        But when your group is large, there are too many answers to comprehend.
+                        So autocomplete-surveys gather your members' answers into a few high-quality answers.
+                    </ul>
+
+                    Participants:
+                    <ul>
+                        To answer survey questions, just type.
+                        You may see the answer you were thinking of, and select it.
+                        Or type in a better version of a suggested answer, so that other people can select your version.
+                        If you see something rude, don't click it, and it will appear less and less.
+                    </ul>
+
+                    Reason-based voting
+                    <ul>
+                        <li> Users must view others' answers before entering their own answer
+                        <li> Users supply both an answer, and a reason for that answer
+                        <li> Users are anonymous, so answers & reasons must stand on their own merit
+                    </ul>
+                    Minimizing the burden of knowledge
+                    <ul>
+                        <li> Users only have to view the most popular and relevant answers
+                        <li> New answer input suggests similar existing proposals/reasons
+                    </ul>
+                    Anti-abuse
+                    <ul>
+                        <li> Each user can select only 1 answer per question, to reduce the chance of strategic answering
+                        <li> Access is private, and sharable by link
+                        <li> Low-quality content is submerged by user voting
+                    </ul>
+
+                    <a href='{{SITE_URL}}/#page=autocomplete&link=MLvPgziMWGqik5NPMSfERPZKgPlrd9PBrKQ9dEhrpTK4YcxF5o' target=_blank> Example </a>
+
+                </div>
+            </details>
+
+        </div>
+
+        <div id=pageEditAutocomplete class=Page>
+            <h1 class=title translate=yes> Edit Auto-complete Survey </h1>
+        </div>
+
+        <div id=pageViewAutocomplete class=Page>
+            <h1 class=title translate=yes> View Auto-complete Survey </h1>
+        </div>
+        
+        <div id=pageAutocompleteResults class=Page>
+            <h1 class=title translate=yes> Auto-complete Survey Results </h1>
+        </div>
+
+
+
+        <div id=pageBudgetNew class=Page>
+            <h1 class=title translate=yes> New Participatory Budget </h1>
+            <p translate=yes>
+                Discover a group's budget preferences, allowing participants to both introduce new budget items,
+                and to negotiate better allocations of resources.
+            </p>
+            <form id=newBudgetForm >
+                <div>
+                    <label for=newBudgetTitleInput translate=yes> Title </label>
+                    <input id=newBudgetTitleInput type=text  aria-required=true
+                        placeholder='Budget for...'
+                        title='Enter your budget title here' />
+                </div>
+                <div>
+                    <label for=newBudgetIntroInput translate=yes> Introduction </label>
+                    <textarea id=newBudgetIntroInput aria-required=true
+                        placeholder='We need to allocate money for... because...'
+                        title='Enter budget introduction'></textarea>
+                </div>
+                <div>
+                    <label for=newBudgetTotalInput translate=yes> Total amount to allocate </label>
+                    <input id=newBudgetTotalInput type=number min=0 step=any  aria-required=true
+                        placeholder='100'
+                        title='Enter total budget amount' />
+                </div>
+
+                <fieldset class=experimentalInputs id=experimentalInputsForBudget>
+                    <legend> Experimental </legend>
+                    <div>
+                        <label for=experimentalPasswordForBudget> Password </label>
+                        <input type=password class=experimentalPasswordInput id=experimentalPasswordForBudget />
+                    </div>
+                    <div>
+                        <label for=hideReasonsForBudget> Hide reasons </label>
+                        <input type=checkbox class=hideReasonsCheckbox id=hideReasonsForBudget />
+                    </div>
+                    <div class=loginRequiredDiv>
+                        <label class=loginRequiredLabel for=newBudgetLoginRequiredCheckbox> Require Login </label>
+                        <input type=checkbox class=loginRequiredCheckbox name=loginRequired id=newBudgetLoginRequiredCheckbox />
+                    </div>
+                </fieldset>
+
+                <div id=newBudgetSubmitButtons>
+                    <button id=newBudgetSubmitButton translate=yes> Start budget </button>
+                </div>
+                <div id=newBudgetSubmitMessage class=Message aria-live=polite></div>
+            </form>
+
+            <details class=aboutDetails style='margin-top:40px;'>
+                <summary translate=yes> More information </summary>
+
+                <div>
+                    Surveyors:
+                    <ul>
+                        Don't limit the possible solutions to your budget challenges by allowing only a predetermined menu of budget-items.
+                        Allow users to add unexpected budget-items, and support their allocations with reasons.
+                        You can still seed the budget with items you consider important.
+                    </ul>
+
+                    Participants:
+                    <ul>
+                        To create a budget proposal, enter any budget-item you like.
+                        Or choose from similar budget-items, to add your support.
+                        Adjust the size of your budget-item, with suggestions about how large or small it should be.
+                    </ul>
+
+                    Reason-based voting
+                        <ul>
+                        <li> Users supply both an answer, and a reason for that answer
+                        <li> Users can learn from other users' budget proposals
+                        </ul>
+                    Minimizing the burden of knowledge
+                        <ul>
+                        <li> Users only have to view the most popular and relevant budget-items
+                        <li> Brevity is promoted
+                        </ul>
+                    Anti-abuse
+                        <ul>
+                        <li> Extreme budget proposals do not sway results
+                        <li> Access is private, and sharable by link
+                        </ul>
+
+                    <a href='{{SITE_URL}}/#page=budget&link=Q6pESHxVkFJPYxNR9EaeCtBsr0bR5GxIvRZ5vCpyyxrCkKsh5n' target=_blank> Example </a>
+                </div>
+            </details>
+        </div>
+
+        <div id=pageBudgetEdit class=Page>
+            <h1 class=title translate=yes> Budget Setup </h1>
+        </div>
+
+        <div id=pageBudgetView class=Page>
+            <h1 class=title translate=yes> Budget </h1>
+        </div>
+
+        <div id=pageBudgetResult class=Page>
+            <h1 class=title translate=yes> Budget Results </h1>
+
+        </div>
+
+
+
+        <div id=pageRecent class=Page>
+            <h1 class=title role=status translate=yes> Recent </h1>
+            <div id=recentMessage class=Message aria-live=polite translate=yes></div>
+            <div id=recentContent></div>
+        </div>
+
+    </div>
+
+</div id=content>
+
+
+{% include 'foot.html' %}
+
+<script src='{{ url_for('static', filename='recent.js') }}'></script>
+<script src='{{ url_for('static', filename='main.js') }}'></script>

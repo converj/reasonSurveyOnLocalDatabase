@@ -1,0 +1,194 @@
+<html>
+<head>
+    <title> Converj: Open voter ID </title>
+    <link rel='stylesheet' href='docs.css' />
+</head>
+<body>
+<a target=_blank href='/' class=websiteTitle> Converj </a>
+<div class=content>
+
+    <h1> Open voter ID </h1>
+
+    
+    <h2> About </h2>
+    <div>
+        <p>
+            Open Voter ID was designed to be like OpenID, to allow third-party web-applications to confirm registered voters' city of residence,
+            and thereby enable local civic participation without foreign interference.
+            Open Voter ID uses scrambled government voter-registration data to confirm a user's name & address & verification data.
+            But Open Voter ID does not reveal the user's data to application-websites, 
+            except for the user's city & an application-user-id only usable on that application-website.
+        </p><p>
+            Open Voter ID helps third-party application-websites build services that are specific to the citizens of a city,
+            without needing to access nor store sensitive information about each user.
+        </p><p>
+            Open Voter ID helps users use multiple third-party application-websites providing a variety of civic services, 
+            using a single login, while remaining anonymous to the application-websites.
+        </p>
+    </div>
+
+
+    <h2> Goals </h2>
+    <div>
+        <p> When creating Open Voter ID, we had the following goals: </p>
+        <ul>
+            <li> Verify that a user is a registered-voter for a particular locale.
+            <li> Allow the user to be verified on multiple application-websites, using a single familiar login-service and account verification.
+            <li> Provide a stable user-ID so that application-websites can associate data with that user.
+            <li> Do not allow application-websites to know who the user is, nor any other information beyond locale.
+            <li> Do not expose voter-registration data to hackers.
+        </ul>
+        <p> Some of these goals conflict, such as anonymity versus application-websites storing user-activity-records.
+    </div>
+
+
+    <h2> Methods </h2>
+    <div>
+        <p> To accomplish the goals, Open Voter ID was designed with the following features: </p>
+        <ul>
+            <li> Login-service only stores hashes of user data.
+            <ul>
+                <li> Voter registration data is converted to user-data-hashes that are uploaded to the login-service.
+
+                <li> <span class=jargon>user data</span> = <span class=term>identity data (name + address)</span> + <span class=term>verification data</term>
+
+                <li> <span class=jargon>verification data</span> may include: 
+                    <span class=term>phone</span>, <span class=term>birthdate</span>, <span class=term>social security number</span>, <span class=term>postal-mailed secret code</span>
+                <ul>
+                    <li style='list-style-type:none;'> Governments that already mail yearly voter documents, 
+                        can attach a short user-specific <span class=jargon>secret code</span> to those documents.
+                </ul>
+
+                <li> Login-service hit-tests users' login-form submissions against user-identity & user-verification hashes.
+                <li> Login-service does not send a session-cookie;  only application-websites may set session-cookies, limiting the impact of session-cookie theft.
+            </ul>
+
+            <li> Login-service does not share user-data with application-websites.
+            <ul>
+                <li> Login-service provides <span class=jargon>application user ID</span> & <span class=jargon>locale</span> to application-websites.
+                <ul>
+                    <li style='list-style-type:none;'> Application-websites cannot derive the original voter-registration user-data from the application-user-ID.
+                    <li style='list-style-type:none;'> Application-user-IDs are specific to each application-website, so that users cannot be tracked across application-websites.
+                </ul>
+
+                <li> Application-websites do not share records of user activities with login-service.
+            </ul>
+
+            <li> A compromised-device that tampers with votes on application-websites, 
+                may be detected by the user comparing their application-website records on a second differently-compromised device.
+                <ul>
+                    <li style='list-style-type:none;'> This is similar to using a second vote display on paper.
+                </ul>
+        </ul>
+    </div>
+
+
+    <h2> Anonymity </h2>
+    <div>
+        <p>
+            Protecting user anonymity was one of the most important and difficult goals of the login system. 
+            No guarantee is possible, because users can intentionally de-anonymize themselves in their posts.
+            However, the login-system should prevent accidental de-anonymization.
+            Open Voter ID's methods help protect anonymity, as follows:
+        </p>
+        <ul>
+            <li> Login-service and application-website have to work together to break user anonymity.
+
+            <li> Users' real identity must be known to break anonymity,
+                because user-IDs used by login-service and application-website are non-reversible hashes of the real-identity.  
+
+            <li> Tracing from application-activity back to a real-identity is legally difficult, 
+                because many real-identities must be probed, searching for a real-identity that hashes to the target application-user-ID.
+
+            <li> Application-websites can make tracing more difficult by re-hashing the application-user-ID with their own secret-salt,
+                and storing records keyed by this application-private-user-ID.
+
+            <li> The login-service lacks session-cookies, reducing the chance of tracing user activity across application-websites.
+        </ul>
+    </div>
+
+
+    <h2> Sequence of events </h2>
+    <p>
+        Open Voter ID implemented the described login methods, using the following order of operations.
+        All hashes use sha-512, and salt from an OS-specific randomness source.
+    </p>
+    <table>
+        <tr><th> Application website </th><th> </th><th> Login website </th></tr>
+        <tr>
+            <td> </td>
+            <td> </td>
+            <td>
+                                               <p> Upload voter-registration records </p>
+                                               <ol class='discontinuous start'>
+                                                 <li> Store each user's <span class=jargon>identity</span> = hash(name + address)
+                                                 <li> Store each user's <span class=jargon>verification</span> = 
+                                                   hash( identity + {birthdate / phone / social-sec / secret-code} )
+                                                 <li> Store each user's locale (city)
+                                               </ol>
+            </td>
+        </tr>
+        <tr><td> Application-website registers with login-service </td><td> </td><td> </td></tr>
+        <tr><td><ol start=4 class=discontinuous><li> Application provides return-URL </ol></td><td> &rarr; </td><td> </td></tr>
+        <tr>
+            <td> </td>
+            <td> &larr; </td>
+            <td><ol start=5 class=discontinuous><li> Generate & store & return application ID, request-signing-secret, user-identity salt </ol></td>
+        </tr>
+        <tr><td> User visits application-website </td><td> </td><td> </td></tr>
+        <tr><td><ol start=6 class=discontinuous><li> Generate login-request, using app-ID & request-signing-secret</ol></td><td> &rarr; </td><td> </td></tr>
+        <tr>
+            <td> </td>
+            <td> </td>
+            <td>
+                                            <ol start=7 class=discontinuous>
+                                               <li> Verify login request
+                                               <li> Ask user for identity: name & address
+                                               <li> Verify that hashed user-identity exists
+                                               <li> Ask user for verification: 
+                                                 birthdate / phone / social-sec / mailed-code
+                                               <li> Verify that hashed user-identity + verification exists
+                                               <li> Regenerate application-specific-user-ID as:
+                                                 hash( identity + app-salt )
+                                            </ol>
+            </td>
+        <tr><td> </td><td> &larr; </td><td><ol start=13 class=discontinuous><li> Return app-specific-user-ID and locale </ol></td></tr>
+        <tr>
+            <td>
+                <ol start=14 class=discontinuous>
+                    <li> Verify login-result request
+                    <li> Verify user locale is eligible for service
+                    <li> Store app-user-ID into browser cookie 
+                    <li> Store activity records keyed by app-user-ID
+                </ol>
+            </td>
+            <td> </td>
+            <td> </td>
+        </tr>
+    </table>
+
+
+    <h2> Existing instance </h2>
+    <div>
+        <p>
+            The implementation of Open Voter ID is non-proprietary, open-source, with a license that permits deriving commercial works.
+        </p><p>
+            An instance is running at <a target=_blank href='https://openvoterid.net/about'>https://openvoterid.net/about</a>
+        </p><p>
+            To upload a city's voter-identity & verification hashes, contact Converj LLC.
+        </p>
+    </div>
+    
+
+</content>
+</body>
+
+
+<style>
+    table { }
+        tr { }
+            td {  border-top:none;  border-bottom:none;  }
+</style>
+
+
+</html>

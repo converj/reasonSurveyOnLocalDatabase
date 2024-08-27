@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Cleanup </title>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+    <link rel='stylesheet' href='main.css' />
+</head>
+<body>
+{% autoescape true %}
+
+<h1 id=pageTitle> Cleanup </h1>
+
+<div class=errorMessage style='color:red;'>{{errorMessage}}</div>
+
+
+<!-- // Records display -->
+<div class=records>
+    {% for record in records %}
+        <p style='color:{{record[0]}};'>{{record[1]}}</p>
+ {% endfor %}
+</div>
+
+
+<!-- // Input form -->
+<form method=post action='clean'>
+    <div>
+        <label for=adminSecret> Admin secret </label>
+        <input id=adminSecret name=secret type=password autofocus placeholder='???' title='Administrator secret' value='{{secret}}' />
+    </div>
+    <div>
+        <label for=type> Record type </label>
+        <input id=type name=type type=text placeholder='???' title='Record type' value='{{type}}' />
+    </div>
+    <div>
+        <label for=cursor> Batch cursor </label>
+        <input id=cursor name=cursor type=text placeholder='???' title='Batch cursor' value='{{cursor}}' />
+    </div>
+    <div>
+        <button type=submit> Next batch </button>
+    </div>
+</form>
+
+
+{% endautoescape %}
+</body>
+</html>
+

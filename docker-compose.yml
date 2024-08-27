@@ -1,0 +1,48 @@
+
+services:
+    webserver:
+        container_name: webserver
+        build: webserver   # Import Dockerfile in this directory
+        restart: always
+        ports:
+            - '5000:5000'
+        volumes:
+            - ./webserver:/webserver
+        networks:
+            - backend
+        secrets:
+          - databasePassword
+
+    database:
+        container_name: database
+        image: mysql:8.4
+        restart: always
+        environment:   # Auto-creates database and user per https://hub.docker.com/_/mysql
+            MYSQL_ROOT_PASSWORD_FILE: /run/secrets/databasePasswordRoot
+            MYSQL_DATABASE: procon
+            MYSQL_USER: proconuser
+            MYSQL_PASSWORD_FILE: /run/secrets/databasePassword
+        expose:
+            - '3306:3306'
+        volumes:
+            - ./databaseData:/var/lib/mysql
+        networks:
+            - backend
+        secrets:
+            - databasePassword
+            - databasePasswordRoot
+
+networks:
+    backend:
+
+volumes:
+    databaseData:
+    webserver:
+
+secrets:
+    databasePassword:
+        file: ./databasePassword.txt    # Customize these password files
+    databasePasswordRoot:
+        file: ./databasePasswordRoot.txt
+
+

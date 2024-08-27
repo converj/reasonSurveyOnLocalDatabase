@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Admin: Links </title>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+    <link rel='stylesheet' href='main.css' />
+</head>
+<body>
+{% autoescape true %}
+
+
+    <h1 id=pageTitle> Links </h1>
+    <div class=errorMessage style='color:red;'>{{errorMessage}}</div>
+
+
+    <!-- Input form -->
+    <form>
+        <div>
+            <label for=adminSecret> Admin password </label>
+            <input id=adminSecret name=secret type=password autofocus placeholder='???' title='Administrator secret' value='{{secret}}' />
+        </div>
+    </form>
+
+
+    <h2> Surveys </h2>
+    <table id=surveys>
+        <tr><th> Time </th><th> Creator </th><th> Type </th><th> Title </th></tr>
+    </table>
+    <button id=moreSurveys> More surveys </button>
+    <div id=moreSurveysMessage></div>
+
+
+{% endautoescape %}
+</body>
+</html>
+
+
+<script src='{{ url_for('static', filename='jquery-3.4.1.min.js') }}'></script>
+<script src='{{ url_for('static', filename='shared.js') }}'></script>
+<script src='{{ url_for('static', filename='translations.js') }}'></script>
+<script>
+
+    let secretInput = elementWithId('adminSecret');
+    let moreButton = elementWithId('moreSurveys');
+    let moreMessage = elementWithId('moreSurveysMessage');
+    let surveysDiv = elementWithId('surveys');
+
+    let cursor = null;
+    let hasMore = true;
+
+    moreButton.onclick = loadMoreSurveys;
+
+    const surveyTypeToPage = {
+        'RequestForProposals':'request', 'Proposal':'proposal', 'Survey':'autocomplete', 'Budget':'budget', 'MultipleQuestionSurvey':'multi' };
+
+
+        function
+    loadMoreSurveys( ){
+        if ( ! secretInput.value ){  showMessageStruct( {color:RED, text:'No admin password'} , moreMessage );  return;  }
+        if ( ! hasMore ){  return;  }
+    
+        showMessageStruct( {color:GREY, text:'Loading surveys...'} , moreMessage );
+
+        // Retrieve a page of surveys of given type
+        let sendData = {  secret:secretInput.value  };
+        let urlParams = [ ];
+        if ( cursor ){  urlParams.push('cursor=' + cursor);  }
+        let url = '/linksPage';
+        if ( 0 < urlParams.length ){  url += '?' + urlParams.join('&');  }
+        ajaxPost( sendData, url, (error, status, receiveData) => {
+            console.log( 'loadMoreSurveys() ajaxPost callback error=', error, 'status=', status, 'receiveData=', receiveData );
+            if ( !error  &&  receiveData &&  receiveData.success ){
+                cursor = receiveData.cursor;
+                // If surveys retrieved... add to displayed surveys
+                if ( receiveData.surveys  &&  0 < receiveData.surveys.length ){
+                    for ( s in receiveData.surveys ){
+                        let survey = receiveData.surveys[ s ];
+
+                        // Construct link to survey
+                        let page = surveyTypeToPage[ survey.type ];
+                        let surveyUrl = ( page  &&  survey.link )?  '/#page=' + page + '&link=' + survey.link  :  null;
+                        let titleDiv = ( surveyUrl )?  html('a').attribute('target','_blank').attribute('href', surveyUrl ).innerHtml( survey.title ).build()  :
+                             html('div').innerHtml( survey.title ).build();
+
+                        // Construct survey display
+                        let surveyDiv = html('tr').class('survey').attribute('created', survey.time).children(
+                            html('td').innerHtml( toLocalDateTimeString(survey.time) ).build() ,
+                            html('td').innerHtml( survey.user ).build() ,
+                            html('td').innerHtml( survey.type ).build() ,
+                            html('td').children( titleDiv ).build()
+                        ).build();
+                        surveysDiv.appendChild( surveyDiv );
+                    }
+                    showMessageStruct( {color:GREEN, text:'Loaded surveys'} , moreMessage );
+                }
+                else {
+                    showMessageStruct( {color:GREEN, text:'No surveys in this batch'} , moreMessage );
+                }
+                if ( ! receiveData.hasMore ){
+                    hasMore = false;
+                    showMessageStruct( {color:RED, text:'No more surveys'} , moreMessage );
+                }
+            }
+            else {
+                showMessageStruct( {color:RED, text:'Failed to load surveys'} , moreMessage );
+            }
+        } );
+    }
+
+        function
+    toLocalDateTimeString( timeSeconds ){
+        let d = new Date( timeSeconds * 1000 );
+        return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+    
+        function
+    pad( number ){  return number.toString().padStart(2, '0');  }
+
+</script>
+
+
+
+<style>
+    body {  padding:10px;  }
+    h2 {  margin:40px 0px 20px 0px;  }
+    form {  margin:20px 0px 40px 0px;  }
+        input {  width:auto;  }
+    table {  border-collapse:collapse;  margin:10px;  }
+        td {  border:solid 1px #cccccc;  padding:10px;  vertical-align:top;  }
+</style>
+

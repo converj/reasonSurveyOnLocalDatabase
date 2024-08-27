@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Admin: Password </title>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+    <link rel='stylesheet' href='main.css' />
+</head>
+<body>
+{% autoescape true %}
+
+    <h1 id=pageTitle> Admin Password </h1>
+    <div class=errorMessage style='color:red;'>{{errorMessage}}</div>
+
+    <div>
+        <label for=adminSecret> Admin password </label>
+        <input id=adminSecret name=secret type=password autofocus placeholder='???' title='Administrator secret' value='' />
+    </div>
+    <button id=setPasswordButton> Save </button>
+    <div id=setPasswordMessage></div>
+
+{% endautoescape %}
+</body>
+</html>
+
+
+<script src='{{ url_for('static', filename='jquery-3.4.1.min.js') }}'></script>
+<script src='{{ url_for('static', filename='shared.js') }}'></script>
+<script src='{{ url_for('static', filename='translations.js') }}'></script>
+<script>
+
+    let secretInput = elementWithId('adminSecret');
+    let setPasswordButton = elementWithId('setPasswordButton');
+    let setPasswordMessage = elementWithId('setPasswordMessage');
+
+    setPasswordButton.onclick = function( ){
+console.log( 'setPasswordButton.onclick()' );  
+        if ( ! secretInput.value ){  showMessageStruct( {color:RED, text:'No admin password'} , setPasswordMessage );  return;  }
+    
+        showMessageStruct( {color:GREY, text:'Saving...'} , setPasswordMessage );
+
+        let sendData = {  secret:secretInput.value  };
+        let url = '/adminSet';
+        ajaxPost( sendData, url, (error, status, receiveData) => {
+console.log( 'setPasswordButton.onclick() ajaxPost callback error=', error, 'status=', status, 'receiveData=', receiveData );
+            if ( !error  &&  receiveData &&  receiveData.success ){
+                showMessageStruct( {color:GREEN, text:'Saved'} , setPasswordMessage );
+            }
+            else {
+                showMessageStruct( {color:RED, text:'Failed to save'} , setPasswordMessage );
+            }
+        } );
+    }
+
+</script>
+
+
+
+<style>
+    body {  padding:10px;  }
+    h2 {  margin:40px 0px 20px 0px;  }
+    form {  margin:20px 0px 40px 0px;  }
+        input {  width:auto;  }
+</style>
+

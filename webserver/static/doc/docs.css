@@ -1,0 +1,32 @@
+
+    html {  background-color:#dddddd;  }
+        body {  margin:0px;  padding:0px;  }
+        .content {  max-width:800px;  margin:auto;  padding:50px;  background-color:#eeeeee;  font-family:"Times New Roman", Times, serif;  line-height:1.9em;  font-size:1.2em;  text-align:justify;  }
+            a.websiteTitle {
+                display:block;  width:calc(100% + 60px);  margin:0px 0px 0px -50px;  padding:20px;
+                background-color:#cccccc;  color:#888888;  text-align:center;  font-family:sans-serif;  font-size:1.5em;
+                text-decoration:none;
+            }
+            a.websiteTitle:hover {  background-color:rgb(206,231,256);  color:black;  }
+            h1 {  margin:30px 0px 50px 0px;  }
+            h2 {  margin:30px 0px 10px 0px;  }
+            h3 {  margin:25px 0px 0px 0px;  font-size:1.05em;  }
+            h4 {  margin:15px 0px 0px 0px;  font-size:1.0em;  }
+            table {  margin:20px 0px 20px 0px;  border-collapse:collapse;  border:solid 1px #cccccc;  font-size:1.0em;  }
+                tr { }
+                    th {  border:solid 1px #cccccc;  padding:10px;  text-align:left;  }
+                    td {  border:solid 1px #cccccc;  padding:10px;  vertical-align:top;  }
+            div {  margin:12px 0px 0px 12px;  }
+                p {  margin:12px 0px 0px 0px;  }
+                ul {  margin:5px 0px 20px 0px;  }
+                    li {  margin:0px 0px 12px 0px;  }
+                img {  display:block;  width:500px;  margin:20px auto 40px auto;  border:solid 1px #cccccc;  }
+                .jargon {  font-style:italic;  }
+                .formula {  display:inline-block;  margin:5px auto 5px 50px;  }
+                    .divide {  margin:0px;  text-align:center;  }
+                        .numerator {  display:block;  margin:0px;  border-bottom:solid 1px black;  }
+                        .denominator {  display:block;  margin:0px;  }
+                .term {  padding:3px 7px;  border:solid 1px #c0c0c0;  background-color:#e8e8e8;  border-radius:20px;  }
+                sup {  margin-right:10px;  }
+
+

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Admin: Metrics </title>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+    <link rel='stylesheet' href='main.css' />
+</head>
+<body>
+{% autoescape true %}
+
+
+
+<h1 id=pageTitle> Metrics </h1>
+
+<div>
+    <label for=adminSecret> Admin password </label>
+    <input id=adminSecret name=secret type=password autofocus placeholder='???' title='Administrator secret' value='{{secret}}' />
+</div>
+<div>
+    <button id=resetMetricsButton> Reset metrics </button>
+    <div id=resetMetricsMessage></div>
+</div>
+<div>
+    <button id=incrementMetricsButton> Increment metrics </button>
+    <div id=incrementMetricsMessage></div>
+</div>
+
+<h2> Metrics by day </h2>
+<table id=metrics></table>
+
+<h2> Increments </h2>
+<table id=increments></table>
+
+<h2> Surveys aggregated </h2>
+<div id=surveys></div>
+
+<h2> Global record </h2>
+<div id=globals></div>
+
+{% endautoescape %}
+</body>
+</html>
+
+
+
+<script src='{{ url_for('static', filename='jquery-3.4.1.min.js') }}'></script>
+<script src='{{ url_for('static', filename='shared.js') }}'></script>
+<script src='{{ url_for('static', filename='translations.js') }}'></script>
+<script>
+
+    let secretInput = elementWithId('adminSecret');
+    let resetButton = elementWithId('resetMetricsButton');
+    let resetMessage = elementWithId('resetMetricsMessage');
+    let incrementButton = elementWithId('incrementMetricsButton');
+    let incrementMessage = elementWithId('incrementMetricsMessage');
+    let metricsDiv = elementWithId('metrics');
+    let surveysDiv = elementWithId('surveys');
+    let incrementsDiv = elementWithId('increments');
+    let globalsDiv = elementWithId('globals');
+
+    let metrics = { };
+    let increments = [ ];
+    let surveysAggregated = [ ];
+    let globalRecord = { };
+
+    resetButton.onclick = function( ){
+        if ( ! secretInput.value ){  showMessageStruct( {color:RED, text:'No admin password'} , resetMessage );  return;  }
+        if ( ! confirm('Are you sure you want to delete existing metrics?') ){  return;  }
+    
+        showMessageStruct( {color:GREY, text:'Resetting metrics...'} , resetMessage );
+
+        let sendData = {  secret:secretInput.value  };
+        let urlParams = [ ];
+        let url = '/metricsReset';
+        ajaxPost( sendData, url, (error, status, receiveData) => {
+            console.log( 'resetButton.onclick() ajaxPost callback error=', error, 'status=', status, 'receiveData=', receiveData );
+            if ( !error  &&  receiveData &&  receiveData.success ){
+                showMessageStruct( {color:GREEN, text:'Metrics reset'} , resetMessage );
+                // Update data and display
+                surveysAggregated = [ ];
+                increments = [ ];
+                metrics = receiveData.dayToMetrics;
+                globalRecord = receiveData.globalRec;
+                updateDisplay();
+            }
+            else {
+                showMessageStruct( {color:RED, text:'Failed to reset metrics'} , resetMessage );
+            }
+
+        } );
+    }
+
+
+    incrementButton.onclick = function( ){
+        if ( ! secretInput.value ){  showMessageStruct( {color:RED, text:'No admin password'} , incrementMessage );  return;  }
+    
+        showMessageStruct( {color:GREY, text:'Loading surveys...'} , incrementMessage );
+
+        // Retrieve a page of surveys of given type
+        let sendData = {  secret:secretInput.value  };
+        let urlParams = [ ];
+        let url = '/metricsIncrement';
+        if ( 0 < urlParams.length ){  url += '?' + urlParams.join('&');  }
+        ajaxPost( sendData, url, (error, status, receiveData) => {
+            console.log( 'incrementButton.onclick() ajaxPost callback error=', error, 'status=', status, 'receiveData=', receiveData );
+            if ( !error  &&  receiveData &&  receiveData.success ){
+                showMessageStruct( {color:GREEN, text:'Updated metrics'} , incrementMessage );
+                // Update data and display
+                surveysAggregated = receiveData.surveysAggregated;
+                increments = receiveData.increments;
+                metrics = receiveData.dayToMetrics;
+                globalRecord = receiveData.globalRec;
+                updateDisplay();
+            }
+            else {
+                showMessageStruct( {color:RED, text:'Failed to increment metrics'} , incrementMessage );
+            }
+        } );
+    }
+
+
+        function
+    updateDisplay( ){
+        updateDailyMetrics( metrics, metricsDiv );
+
+        clearChildren( surveysDiv );
+        surveysDiv.appendChild( html('tr').class('survey').children(
+            html('th').innerHtml('Time').build() , html('th').innerHtml('User').build() , html('th').innerHtml('Type').build() , html('th').innerHtml('Title').build()
+        ).build() );
+        for ( s = 0;  s < surveysAggregated.length;  ++s ){
+            let survey = surveysAggregated[ s ];
+            // Construct survey display
+            let surveyDiv = html('tr').class('survey').attribute('created', survey.time).children(
+                html('td').innerHtml( survey.time ).build() ,
+                html('td').innerHtml( survey.user ).build() ,
+                html('td').innerHtml( survey.type ).build() ,
+                html('td').innerHtml( survey.title ).build()
+            ).build();
+            surveysDiv.appendChild( surveyDiv );
+        }
+
+        updateDailyMetrics( increments, incrementsDiv );
+
+        globalsDiv.innerHTML = JSON.stringify( globalRecord );
+    }
+
+        function
+    updateDailyMetrics( dayToMetrics, targetDiv ){
+        clearChildren( targetDiv );
+        // Display headers
+        targetDiv.appendChild( html('tr').class('metric').children(
+            html('th').innerHtml('Day').build() , html('th').innerHtml('Survey count').build() , html('th').innerHtml('Creator').build() , html('th').innerHtml('Survey types').build()
+        ).build() );
+        // For each day, from new to old...
+        Object.entries( dayToMetrics ).sort( (a,b) => b[0] < a[0] ? -1 : 1 ).forEach( ([day, dayMetrics]) => {
+            // Display increment
+            let dayRow = html('tr').class('increment').children(
+                html('td').innerHtml( day ).build() ,
+                html('td').innerHtml( dayMetrics.numSurveys ).build() ,
+                html('td').children(
+                    html('table').children(
+                        ...Object.entries( dayMetrics.userToNumSurveys ).sort( (a,b) => b[1] - a[1] ).map( ([creator, numSurveys]) =>
+                            html('tr').children( html('td').innerHtml(creator).build() , html('td').innerHtml(numSurveys).build() ).build()
+                        )
+                    ).build()
+                ).build() ,
+                html('td').children(
+                    html('table').children(
+                        ...Object.entries( dayMetrics.typeToNumSurveys ).sort( (a,b) => b[1] - a[1] ).map( ([t, numSurveys]) =>
+                            html('tr').children( html('td').innerHtml(t).build() , html('td').innerHtml(numSurveys).build() ).build()
+                        )
+                    ).build()
+                ).build()
+            ).build();
+            targetDiv.appendChild( dayRow );
+        } );
+    }
+
+</script>
+
+
+
+<style>
+    body {  padding:10px;  }
+    h2 {  margin:40px 0px 20px 0px;  }
+    form {  margin:20px 0px 40px 0px;  }
+        input {  width:auto;  }
+    table {  border-collapse:collapse;  margin:10px;  }
+        td {  border:solid 1px #cccccc;  padding:10px;  vertical-align:top;  }
+            table table {  margin:0px;  width:100%;  }
+                table table td {  padding:0px 5px 10px 5px;  border:none;  }
+</style>
+
+
