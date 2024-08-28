@@ -5,6 +5,7 @@ When opinions conflict, voting alone does not bring opinions closer together. Co
 These survey tools have been designed to make it fast & easy for people to express their reasons, and to comprehend others' reasons. 
 
 This repository implements a Dockerized instance of Converj, which you can run inside your private network, to keep sensitive data under your control.
+
 To run:
 * Install Docker
 * Checkout the repository
