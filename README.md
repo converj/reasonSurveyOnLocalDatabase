@@ -8,7 +8,7 @@ This repository implements a Dockerized instance of Converj, which you can run i
 To run:
 * Install Docker
 * Checkout the repository
-* Customize `databasePassword*.txt` and `webserver/secrets.py`
+* Customize `databasePassword*.txt` (and also `webserver/secrets.py`, at a later time)
 * In the checkout directory, run `docker-compose up`
 
 Converj is also available as a free cloud service at https://converj.us
