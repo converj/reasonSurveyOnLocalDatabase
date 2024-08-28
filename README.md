@@ -11,5 +11,6 @@ To run:
 * Checkout this repository
 * Customize `databasePassword*.txt` (Later also customize `webserver/secrets.py`)
 * In the checkout directory, run `docker-compose up`
+* View the website at http://localhost:5000
 
 Converj is also available as a free cloud service at https://converj.us
