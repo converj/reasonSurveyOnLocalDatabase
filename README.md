@@ -7,8 +7,8 @@ These survey tools have been designed to make it fast & easy for people to expre
 This repository implements a Dockerized instance of Converj, which you can run inside your private network, to keep sensitive data under your control.
 
 To run:
-* Install Docker
-* Checkout the repository
+* Install Docker (Example: https://docs.docker.com/get-started/introduction/get-docker-desktop)
+* Checkout this repository
 * Customize `databasePassword*.txt` (and also `webserver/secrets.py`, at a later time)
 * In the checkout directory, run `docker-compose up`
 
