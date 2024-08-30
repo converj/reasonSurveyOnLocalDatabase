@@ -13,4 +13,4 @@ To run:
 * In the checkout directory, run `docker-compose up`
 * View the website at http://localhost:5000
 
-Converj is also available as a free cloud service at https://converj.us
+Converj is also available as a free cloud service at https://converj.net
