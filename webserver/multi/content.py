@@ -243,12 +243,13 @@ if not conf.IS_CLOUD:
     if not storage.viewExists( TABLE_NAME_VOTE_AGG_PER_REASON ):
         storage.databaseInitialize( f"""
             create view {TABLE_NAME_VOTE_AGG_PER_REASON} as select
-              C.surveyId as surveyId, C.questionId as questionId, C.id as contentId, C.type as contentType,
+              C.surveyId as surveyId, C.questionId as questionId, C.id as contentId, C.type as contentType, C.proOrCon as proOrCon, C.parentKey as parentKey,
               count(*) as voteCount,
+              if( C.proOrCon='pro', count(*), 0 ) - if( C.proOrCon='con', count(*), 0 )  as voteCountSigned ,
               cast(count(*) as decimal) / greatest( 1.0, cast(length(C.content) as decimal)/{float(conf.CHAR_LENGTH_UNIT)} ) as score
              from {TABLE_NAME_VOTE} as V join {TABLE_NAME_CONTENT} as C
              where V.surveyId=C.surveyId and V.questionId=C.questionId and V.contentId=C.id and C.type='{REASON}'
-             group by surveyId, questionId, contentId
+             group by C.surveyId, C.questionId, C.id
             """
         )
 
@@ -256,12 +257,12 @@ if not conf.IS_CLOUD:
     if not storage.viewExists( TABLE_NAME_VOTE_AGG_PER_SOLUTION ):
         storage.databaseInitialize( f"""
             create view {TABLE_NAME_VOTE_AGG_PER_SOLUTION} as select
-              C.surveyId as surveyId, C.questionId as questionId, C.id as contentId, C.type as contentType,
-              sum( if(C.proOrCon='pro', 1, 0) - if(C.proOrCon='con', 1, 0)  ) as voteCount,
-              cast(voteCount as decimal) / greatest( 1.0, cast(length(C.content) as decimal)/{float(conf.CHAR_LENGTH_UNIT)} ) as score
+              C.surveyId as surveyId, C.questionId as questionId, C.id as contentId, C.type as contentType, C.parentKey as parentKey,
+              sum( V.voteCountSigned ) as voteCount,
+              cast( sum(V.voteCountSigned) as decimal ) / greatest( 1.0, cast(length(C.content) as decimal)/{float(conf.CHAR_LENGTH_UNIT)} ) as score
              from {TABLE_NAME_VOTE_AGG_PER_REASON} as V join {TABLE_NAME_CONTENT} as C
-             where V.surveyId=C.surveyId and V.questionId=C.questionId and V.contentId=C.id and C.type='{SOLUTION}'
-             group by surveyId, questionId, contentId
+             where V.surveyId=C.surveyId and V.questionId=C.questionId and V.parentKey=C.id
+             group by C.surveyId, C.questionId, C.id
             """
         )
 
@@ -269,15 +270,14 @@ if not conf.IS_CLOUD:
     if not storage.viewExists( TABLE_NAME_VOTE_AGG_PER_PROBLEM ):
         storage.databaseInitialize( f"""
             create view {TABLE_NAME_VOTE_AGG_PER_PROBLEM} as select
-              C.surveyId as surveyId, C.questionId as questionId, C.id as contentId, C.type as contentType,
+              C.surveyId as surveyId, C.questionId as questionId, C.id as contentId, C.type as contentType, C.parentKey as parentKey,
               max( V.voteCount ) as maxChildVotes,
-              cast(voteCount as decimal) / greatest( 1.0, cast(length(C.content) as decimal)/{float(conf.CHAR_LENGTH_UNIT)} ) as score
+              cast(max(V.voteCount) as decimal) / greatest( 1.0, cast(length(C.content) as decimal)/{float(conf.CHAR_LENGTH_UNIT)} ) as score
              from {TABLE_NAME_VOTE_AGG_PER_SOLUTION} as V join {TABLE_NAME_CONTENT} as C
-             where V.surveyId=C.surveyId and V.questionId=C.questionId and V.contentId=C.id and C.type='{PROBLEM}'
-             group by surveyId, questionId, contentId
+             where V.surveyId=C.surveyId and V.questionId=C.questionId and V.parentKey=C.id
+             group by C.surveyId, C.questionId, C.id
             """
         )
-
 
     def retrieveDatabase( contentId ):
         return storage.RecordDatabase.retrieve( TABLE_NAME_CONTENT, contentId )
@@ -324,11 +324,12 @@ if not conf.IS_CLOUD:
         solutionId = solutionId or 0
         logging.debug(LogMessage('userId=', userId, 'surveyId=', surveyId, 'questionId=', questionId, 'problemId=', problemId, 'solutionId=', solutionId, 'reasonId=', reasonId, 'reasonIdOld=', reasonIdOld))
 
-        # Mark reason responded
-        parentRecord = storage.get_by_id( TABLE_NAME_CONTENT, reasonId )
-        if not parentRecord.hasResponse:
-            parentRecord.hasResponse = True
-            parentRecord.put()
+        # Mark reason responded (if voting yes)
+        if reasonId:
+            parentRecord = storage.get_by_id( TABLE_NAME_CONTENT, reasonId )
+            if not parentRecord.hasResponse:
+                parentRecord.hasResponse = True
+                parentRecord.put()
 
         # Remove all user's votes for reasons for this proposal
         storage.databaseExecute( f"""
@@ -383,11 +384,12 @@ if not conf.IS_CLOUD:
         cursor = cursor or 0
         problemId = problemId or 0
         solutionId = solutionId or 0
+        # Order by score and id, to keep sort order consistent when scores are null
         records = storage.RecordDatabase.fetchall( f"""
             select * from {TABLE_NAME_VOTE_AGG_PER_REASON} as V right join {TABLE_NAME_CONTENT} as C
              on V.surveyId=C.surveyId and V.questionId=C.questionId and V.contentId=C.id
              where C.surveyId=%s and C.questionId=%s and C.parentKey=%s and C.proOrCon=%s
-             order by score desc  limit %s offset %s
+             order by if(V.score is null, 0, score) , C.id desc  limit %s offset %s
             """ ,
             parameters=(surveyId, questionId, solutionId, proOrCon, maxRecords, cursor) ,
             table=TABLE_NAME_CONTENT
@@ -402,7 +404,7 @@ if not conf.IS_CLOUD:
             select * from {TABLE_NAME_VOTE_AGG_PER_SOLUTION} as V right join {TABLE_NAME_CONTENT} as C
              on V.surveyId=C.surveyId and V.questionId=C.questionId and V.contentId=C.id
              where C.surveyId=%s and C.questionId=%s and C.parentKey=%s
-             order by score desc  limit %s offset %s
+             order by if(V.score is null, 0, score) , C.id desc  limit %s offset %s
             """ ,
             parameters=(surveyId, questionId, problemId, maxRecords, cursor) ,
             table=TABLE_NAME_CONTENT
@@ -416,7 +418,7 @@ if not conf.IS_CLOUD:
             select * from {TABLE_NAME_VOTE_AGG_PER_PROBLEM} as V right join {TABLE_NAME_CONTENT} as C
              on V.surveyId=C.surveyId and V.questionId=C.questionId and V.contentId=C.id
              where C.surveyId=%s and C.questionId=%s and (C.parentKey=0 or C.parentKey is null)
-             order by maxChildVotes desc  limit %s offset %s
+             order by if(V.maxChildVotes is null, 0, V.maxChildVotes) , C.id desc  limit %s offset %s
             """ ,
             parameters=(surveyId, questionId, maxRecords, cursor) ,
             table=TABLE_NAME_CONTENT
@@ -426,7 +428,7 @@ if not conf.IS_CLOUD:
 
 
 
-    def retrieveTopMatchingReasonsDatabase( surveyId, questionId, problemId, solutionId, contentStart ):
+    def suggestTopMatchingReasonsDatabase( surveyId, questionId, problemId, solutionId, contentStart ):
         problemId = problemId or 0
         solutionId = solutionId or 0
         inputWords = multi.shared.tokenizeText( contentStart )
@@ -449,7 +451,7 @@ if not conf.IS_CLOUD:
             )
         return contentRecords
 
-    def retrieveTopMatchingSolutionsDatabase( surveyId, questionId, problemId, contentStart ):
+    def suggestTopMatchingSolutionsDatabase( surveyId, questionId, problemId, contentStart ):
         problemId = problemId or 0
         inputWords = multi.shared.tokenizeText( contentStart )
         if conf.isDev:  logging.debug(LogMessage('inputWords=', inputWords))
@@ -470,7 +472,7 @@ if not conf.IS_CLOUD:
             )
         return contentRecords
 
-    def retrieveTopMatchingProblemsDatabase( surveyId, questionId, contentStart ):
+    def suggestTopMatchingProblemsDatabase( surveyId, questionId, contentStart ):
         inputWords = multi.shared.tokenizeText( contentStart )
         if conf.isDev:  logging.debug(LogMessage('inputWords=', inputWords))
 
@@ -584,13 +586,13 @@ def retrieveTopProblems( surveyId, questionId, maxRecords=3, cursor=None ):
 # Returns series[ content-record ]
 def retrieveTopMatchingReasons( surveyId, questionId, problemId, solutionId, contentStart ):
     if conf.IS_CLOUD:  return Content.retrieveTopMatchingContent( surveyId, questionId, [problemId, solutionId], contentStart )
-    else:              return retrieveTopMatchingReasonsDatabase( surveyId, questionId, problemId, solutionId, contentStart )
+    else:              return suggestTopMatchingReasonsDatabase( surveyId, questionId, problemId, solutionId, contentStart )
 
 def retrieveTopMatchingSolutions( surveyId, questionId, problemId, contentStart ):
     if conf.IS_CLOUD:  return Content.retrieveTopMatchingContent( surveyId, questionId, [problemId], contentStart )
-    else:              return retrieveTopMatchingSolutionsDatabase( surveyId, questionId, problemId, contentStart )
+    else:              return suggestTopMatchingSolutionsDatabase( surveyId, questionId, problemId, contentStart )
 
 def retrieveTopMatchingProblems( surveyId, questionId, contentStart ):
     if conf.IS_CLOUD:  return Content.retrieveTopMatchingContent( surveyId, questionId, [], contentStart )
-    else:              return retrieveTopMatchingProblemsDatabase( surveyId, questionId, contentStart )
+    else:              return suggestTopMatchingProblemsDatabase( surveyId, questionId, contentStart )
 

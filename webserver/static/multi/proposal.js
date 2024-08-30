@@ -583,6 +583,7 @@
             if ( ! error  &&  receiveData  &&  receiveData.success  &&  receiveData.reason ){
                 thisCopy.message = { color:GREEN, text:'Saved reason', ms:3000 };
 
+                thisCopy.idToReason[ receiveData.reason.id ] = receiveData.reason;
                 if ( proOrCon == PRO ){  thisCopy.pros.push( receiveData.reason );  }
                 else {  thisCopy.cons.push( receiveData.reason );  }
 

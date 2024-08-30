@@ -575,6 +575,10 @@
                                                         margin:15px 10px 0px 0px;  border:solid 1px #aaaaaa;  border-radius:5px;  padding:4px;
                                                         background-color:#dddddd;  color:#666666;
                                                     }
+#pageMultiQuestion                                  summary .ContentTag {
+                                                        box-shadow:-1px -1px 5px #bbb inset;  background:linear-gradient(#f0f0f0, #d8d8d8);
+                                                    }
+
 #pageMultiQuestion                              .Solutions {  }
 #pageMultiQuestion                                  .SolutionDisplay {  margin:10px 0 20px 20px;  }
 #pageMultiQuestion                                    .SolutionDisplay summary {  display:inline-block;  width:100%;  }

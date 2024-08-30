@@ -1007,6 +1007,9 @@
                 // Collect map{ id -> solution }
                 if ( receiveData.solutions ){   receiveData.solutions.forEach(  s => { if (s.id) thisCopy.idToSolution[s.id] = s; }  )   }
                 thisCopy.solutions = Object.values( thisCopy.idToSolution );
+                // Sort solutions by score, at least initially
+                thisCopy.solutions.sort( (a,b) => b.score - a.score );
+
                 thisCopy.dataUpdated();
             }
             else {
@@ -1414,6 +1417,9 @@
                 // Collect map{ id -> problem }
                 if ( receiveData.problems ){   receiveData.problems.forEach(  p => { if (p.id) thisCopy.idToProblem[p.id] = p; }  )   }
                 thisCopy.problems = Object.values( thisCopy.idToProblem );
+                // Sort problems by score
+                thisCopy.problems.sort( (a,b) => b.score - a.score );
+
                 thisCopy.dataUpdated();
             }
             else {
@@ -1728,6 +1734,9 @@
                 // Collect map{ id -> solution }
                 if ( receiveData.solutions ){   receiveData.solutions.forEach(  s => { if (s.id) thisCopy.idToSolution[s.id] = s; }  )   }
                 thisCopy.solutions = Object.values( thisCopy.idToSolution );
+                // Sort solutions by score, at least initially
+                thisCopy.solutions.sort( (a,b) => b.score - a.score );
+
                 thisCopy.dataUpdated();
             }
             else {
