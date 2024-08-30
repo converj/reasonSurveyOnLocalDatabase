@@ -7,11 +7,14 @@ These survey tools have been designed to make it fast & easy for people to expre
 This repository implements a Dockerized instance of [Converj](https://github.com/converj/reasonSurvey), which you can run inside your private network, to keep sensitive data under your control.
 
 To run:
-* Install Docker (Example: https://docs.docker.com/get-started/get-docker)
+* Install [Docker](https://docs.docker.com/get-started/get-docker)
 * Checkout this repository
 * In the checkout directory:
-  * Customize `databasePassword*.txt` (Later also customize `webserver/secrets.py`)
+  * Customize `databasePassword*.txt`
   * Run `docker-compose up`
 * View the website at http://localhost:5000
+
+To do later, but before sharing surveys with other people:
+* Customize `webserver/secrets.py` (will reset user identities)
 
 Converj is also available as a free cloud service at https://converj.net
